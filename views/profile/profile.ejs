@@ -1,0 +1,637 @@
+<%- include('../partials/header') %>
+
+<%
+  const mainProfileImageUrl = loginUser && loginUser.profileImage
+    ? '/uploads/' + loginUser.profileImage
+    : '/images/dashboard/Profile.png';
+
+  const savedDateOfBirth = loginUser.dateOfBirth || loginUser.date || '';
+
+  const makeGithubUrl = (value) => {
+    if (!value) return '';
+
+    value = value.trim();
+
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+
+    value = value.replace('@', '');
+    value = value.replace('https://github.com/', '');
+    value = value.replace('http://github.com/', '');
+    value = value.replace('github.com/', '');
+    value = value.replace('www.github.com/', '');
+
+    return 'https://github.com/' + value;
+  };
+
+  const makeLinkedinUrl = (value) => {
+    if (!value) return '';
+
+    value = value.trim();
+
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+
+    value = value.replace('@', '');
+    value = value.replace('https://www.linkedin.com/in/', '');
+    value = value.replace('http://www.linkedin.com/in/', '');
+    value = value.replace('https://linkedin.com/in/', '');
+    value = value.replace('http://linkedin.com/in/', '');
+    value = value.replace('www.linkedin.com/in/', '');
+    value = value.replace('linkedin.com/in/', '');
+    value = value.replace('in/', '');
+
+    return 'https://www.linkedin.com/in/' + value;
+  };
+
+  const makeInstagramUrl = (value) => {
+    if (!value) return '';
+
+    value = value.trim();
+
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+
+    value = value.replace('@', '');
+    value = value.replace('https://www.instagram.com/', '');
+    value = value.replace('http://www.instagram.com/', '');
+    value = value.replace('https://instagram.com/', '');
+    value = value.replace('http://instagram.com/', '');
+    value = value.replace('www.instagram.com/', '');
+    value = value.replace('instagram.com/', '');
+
+    return 'https://www.instagram.com/' + value;
+  };
+
+  const makeTwitterUrl = (value) => {
+    if (!value) return '';
+
+    value = value.trim();
+
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+
+    value = value.replace('@', '');
+    value = value.replace('https://x.com/', '');
+    value = value.replace('http://x.com/', '');
+    value = value.replace('https://twitter.com/', '');
+    value = value.replace('http://twitter.com/', '');
+    value = value.replace('www.x.com/', '');
+    value = value.replace('www.twitter.com/', '');
+    value = value.replace('x.com/', '');
+    value = value.replace('twitter.com/', '');
+
+    return 'https://x.com/' + value;
+  };
+
+  const githubValue = loginUser.githubUsername || '';
+  const linkedinValue = loginUser.linkedinUrl || '';
+  const instagramValue = loginUser.instagramUrl || '';
+  const twitterValue = loginUser.twitterUrl || '';
+
+  const githubProfileUrl = makeGithubUrl(githubValue);
+  const linkedinProfileUrl = makeLinkedinUrl(linkedinValue);
+  const instagramProfileUrl = makeInstagramUrl(instagramValue);
+  const twitterProfileUrl = makeTwitterUrl(twitterValue);
+
+  const locationValue = loginUser.location || '';
+  const locationMapUrl = locationValue
+    ? 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(locationValue)
+    : '';
+
+  const whatsappProfileUrl = 'https://wa.me/9510537044?text=Hi%20Admin,%20I%20want%20information%20about%20your%20Admin%20Panel.';
+%>
+
+<div class="content-wrapper">
+  <div class="container-xxl flex-grow-1 container-p-y">
+    <div class="row gy-6">
+      <div class="col-12">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3 mb-4">
+          <div>
+            <h4 class="mb-1">Profile</h4>
+            <p class="mb-0 text-body-secondary">Manage your personal details and developer information.</p>
+          </div>
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+            <i class="icon-base ri ri-edit-box-line me-1"></i>
+            Edit Profile
+          </button>
+        </div>
+      </div>
+
+      <% if (success) { %>
+        <div class="col-12">
+          <div class="alert alert-success alert-dismissible" role="alert">
+            <%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        </div>
+      <% } %>
+
+      <% if (error) { %>
+        <div class="col-12">
+          <div class="alert alert-danger alert-dismissible" role="alert">
+            <%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="col-xl-4 col-lg-5 col-md-5">
+        <div class="card profile-card h-100">
+          <div class="card-body text-center">
+            <div class="profile-avatar mx-auto mb-4">
+              <img src="<%= mainProfileImageUrl %>" alt="profile" class="rounded-circle" />
+            </div>
+
+            <h4 class="mb-1">
+              <%= loginUser.username || 'User Name' %>
+            </h4>
+
+            <p class="text-body-secondary mb-3">
+              <%= loginUser.backendDeveloper || 'Developer' %>
+            </p>
+
+            <span class="badge rounded-pill bg-label-success mb-5">
+              <%= loginUser.role || 'User' %>
+            </span>
+
+            <div class="d-flex justify-content-center gap-5 border-top pt-5">
+              <div>
+                <h5 class="mb-0">
+                  <%= loginUser.role || '-' %>
+                </h5>
+                <small class="text-body-secondary">Role</small>
+              </div>
+
+              <div>
+                <h5 class="mb-0">
+                  <%= loginUser.country || '-' %>
+                </h5>
+                <small class="text-body-secondary">Country</small>
+              </div>
+            </div>
+
+            <div class="border-top mt-5 pt-5">
+              <small class="text-body-secondary d-block mb-3">Social Links</small>
+
+              <div class="d-flex justify-content-center flex-wrap gap-2">
+                <% if (githubProfileUrl) { %>
+                  <a href="<%= githubProfileUrl %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                    GitHub
+                  </a>
+                <% } %>
+
+                <% if (linkedinProfileUrl) { %>
+                  <a href="<%= linkedinProfileUrl %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                    LinkedIn
+                  </a>
+                <% } %>
+
+                <% if (instagramProfileUrl) { %>
+                  <a href="<%= instagramProfileUrl %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                    Instagram
+                  </a>
+                <% } %>
+
+                <% if (twitterProfileUrl) { %>
+                  <a href="<%= twitterProfileUrl %>" target="_blank" class="btn btn-sm btn-outline-primary">
+                    Twitter (X)
+                  </a>
+                <% } %>
+
+                <a href="<%= whatsappProfileUrl %>" target="_blank" class="btn btn-sm btn-outline-success">
+                  WhatsApp
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-xl-8 col-lg-7 col-md-7">
+        <div class="card h-100">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <div>
+              <h5 class="mb-0">Profile Details</h5>
+              <small class="text-body-secondary">Your saved account and work details</small>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="row gy-4">
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Name</small>
+                  <h6>
+                    <%= loginUser.username || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Email</small>
+                  <h6>
+                    <%= loginUser.email || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Role</small>
+                  <h6>
+                    <%= loginUser.role || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Country</small>
+                  <h6>
+                    <%= loginUser.country || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Language</small>
+                  <h6>
+                    <%= loginUser.languages || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Contact</small>
+                  <h6>
+                    <%= loginUser.contact || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Developer</small>
+                  <h6>
+                    <%= loginUser.backendDeveloper || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Location</small>
+                  <h6>
+                    <% if (locationMapUrl) { %>
+                      <a href="<%= locationMapUrl %>" target="_blank">
+                        <%= loginUser.location %>
+                      </a>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Date of Birth</small>
+                  <h6>
+                    <%= savedDateOfBirth || '-' %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>GitHub</small>
+                  <h6>
+                    <% if (githubProfileUrl) { %>
+                      <a href="<%= githubProfileUrl %>" target="_blank">
+                        <%= loginUser.githubUsername %>
+                      </a>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>LinkedIn</small>
+                  <h6>
+                    <% if (linkedinProfileUrl) { %>
+                      <a href="<%= linkedinProfileUrl %>" target="_blank">
+                        LinkedIn Profile
+                      </a>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Instagram</small>
+                  <h6>
+                    <% if (instagramProfileUrl) { %>
+                      <a href="<%= instagramProfileUrl %>" target="_blank">
+                        Instagram Profile
+                      </a>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>Twitter (X)</small>
+                  <h6>
+                    <% if (twitterProfileUrl) { %>
+                      <a href="<%= twitterProfileUrl %>" target="_blank">
+                        Twitter Profile
+                      </a>
+                    <% } else { %>
+                      -
+                    <% } %>
+                  </h6>
+                </div>
+              </div>
+
+              <div class="col-sm-6">
+                <div class="profile-info-box">
+                  <small>WhatsApp</small>
+                  <h6>
+                    <a href="<%= whatsappProfileUrl %>" target="_blank">
+                      Message Admin
+                    </a>
+                  </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <form class="modal-content" action="/profile" method="POST" enctype="multipart/form-data">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Edit Profile</h5>
+            <small class="text-body-secondary">Email is fixed and cannot be changed.</small>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="d-flex flex-column flex-sm-row align-items-sm-center gap-4 mb-5 p-4 rounded profile-upload-box">
+            <img src="<%= mainProfileImageUrl %>" alt="profile" class="rounded-circle profile-upload-preview" />
+
+            <div class="flex-grow-1">
+              <label class="form-label">Profile Image</label>
+              <input type="file" name="profileImage" class="form-control" accept="image/*" />
+            </div>
+          </div>
+
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label">Name</label>
+              <input
+                type="text"
+                name="username"
+                class="form-control"
+                value="<%= loginUser.username || '' %>"
+                placeholder="Enter name"
+                required
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                value="<%= loginUser.email || '' %>"
+                disabled
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Role</label>
+              <select name="role" class="form-select">
+                <option value="">Select Role</option>
+                <option value="User" <%= loginUser.role === "User" ? "selected" : "" %>>User</option>
+                <option value="Admin" <%= loginUser.role === "Admin" ? "selected" : "" %>>Admin</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Country</label>
+              <select name="country" class="form-select">
+                <option value="">Select Country</option>
+                <option value="India" <%= loginUser.country === "India" ? "selected" : "" %>>India</option>
+                <option value="USA" <%= loginUser.country === "USA" ? "selected" : "" %>>USA</option>
+                <option value="UK" <%= loginUser.country === "UK" ? "selected" : "" %>>UK</option>
+                <option value="Canada" <%= loginUser.country === "Canada" ? "selected" : "" %>>Canada</option>
+                <option value="Australia" <%= loginUser.country === "Australia" ? "selected" : "" %>>Australia</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Language</label>
+              <select name="languages" class="form-select">
+                <option value="">Select Language</option>
+                <option value="English" <%= loginUser.languages === "English" ? "selected" : "" %>>English</option>
+                <option value="Hindi" <%= loginUser.languages === "Hindi" ? "selected" : "" %>>Hindi</option>
+                <option value="Gujarati" <%= loginUser.languages === "Gujarati" ? "selected" : "" %>>Gujarati</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contact</label>
+              <input
+                type="text"
+                name="contact"
+                class="form-control"
+                value="<%= loginUser.contact || '' %>"
+                placeholder="Phone number"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Developer</label>
+              <select name="backendDeveloper" class="form-select">
+                <option value="">Select Developer Type</option>
+                <option value="Frontend Developer" <%= loginUser.backendDeveloper === "Frontend Developer" ? "selected" : "" %>>Frontend Developer</option>
+                <option value="Backend Developer" <%= loginUser.backendDeveloper === "Backend Developer" ? "selected" : "" %>>Backend Developer</option>
+                <option value="Full Stack Developer" <%= loginUser.backendDeveloper === "Full Stack Developer" ? "selected" : "" %>>Full Stack Developer</option>
+                <option value="MERN Stack Developer" <%= loginUser.backendDeveloper === "MERN Stack Developer" ? "selected" : "" %>>MERN Stack Developer</option>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Location</label>
+              <input
+                type="text"
+                name="location"
+                class="form-control"
+                value="<%= loginUser.location || '' %>"
+                placeholder="Surat, Gujarat"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Date of Birth</label>
+              <input
+                type="date"
+                name="dateOfBirth"
+                class="form-control"
+                value="<%= savedDateOfBirth %>"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">GitHub</label>
+              <input
+                type="text"
+                name="githubUsername"
+                class="form-control"
+                value="<%= loginUser.githubUsername || '' %>"
+                placeholder="Meetpatel0264"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">LinkedIn</label>
+              <input
+                type="text"
+                name="linkedinUrl"
+                class="form-control"
+                value="<%= loginUser.linkedinUrl || '' %>"
+                placeholder="meet-patel-frontend"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Instagram</label>
+              <input
+                type="text"
+                name="instagramUrl"
+                class="form-control"
+                value="<%= loginUser.instagramUrl || '' %>"
+                placeholder="meetpatel0264"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Twitter (X)</label>
+              <input
+                type="text"
+                name="twitterUrl"
+                class="form-control"
+                value="<%= loginUser.twitterUrl || '' %>"
+                placeholder="Meetpatel0264"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .profile-card {
+    overflow: hidden;
+  }
+
+  .profile-card::before {
+    content: "";
+    display: block;
+    height: 110px;
+    margin: -24px -24px 24px;
+    background: #212121;
+  }
+
+  .profile-avatar {
+    width: 112px;
+    height: 112px;
+    padding: 5px;
+    margin-top: -86px;
+    background: var(--bs-card-bg);
+    border-radius: 50%;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .profile-info-box {
+    padding: 18px;
+    border: 1px solid rgba(46, 38, 61, 0.08);
+    border-radius: 12px;
+    background: rgba(46, 38, 61, 0.02);
+    height: 100%;
+  }
+
+  .profile-info-box small {
+    color: var(--bs-secondary-color);
+    font-weight: 500;
+  }
+
+  .profile-info-box h6 {
+    margin: 6px 0 0;
+    word-break: break-word;
+  }
+
+  .profile-info-box a {
+    text-decoration: none;
+  }
+
+  .profile-info-box a:hover {
+    text-decoration: underline;
+  }
+
+  .profile-upload-box {
+    border: 1px dashed rgba(46, 38, 61, 0.18);
+    background: rgba(46, 38, 61, 0.03);
+  }
+
+  .profile-upload-preview {
+    width: 82px;
+    height: 82px;
+    object-fit: cover;
+    border: 4px solid var(--bs-card-bg);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  }
+</style>
+
+<%- include('../partials/footer') %>

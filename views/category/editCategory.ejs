@@ -1,0 +1,49 @@
+<%- include('../partials/header') %>
+
+<div class="content-wrapper">
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-9">
+                <div class="card border-0 shadow-sm category-card">
+                    <div class="card-header bg-transparent d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div>
+                            <h5 class="mb-1">Edit Category</h5>
+                            <p class="text-body-secondary mb-0">Update category item name.</p>
+                        </div>
+                        <a href="/view-category" class="btn btn-sm btn-outline-primary">
+                            <i class="icon-base ri ri-arrow-left-line me-1"></i> Back
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <% if (error) { %>
+                            <div class="alert alert-danger"><%= error %></div>
+                        <% } %>
+
+                        <form action="/update-category/<%= category._id %>" method="POST" class="row g-4">
+                            <div class="col-12">
+                                <label for="categoryName" class="form-label">Category Item Name</label>
+                                <input type="text" class="form-control form-control-lg" id="categoryName" name="categoryName" value="<%= category.categoryName %>" required>
+                            </div>
+                            <div class="col-12 d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="icon-base ri ri-save-3-line me-1"></i> Update Category
+                                </button>
+                                <a href="/view-category" class="btn btn-outline-secondary px-4">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .category-card {
+            border-radius: 18px;
+        }
+        .category-card .form-control {
+            border-radius: 12px;
+        }
+    </style>
+
+    <%- include('../partials/footer') %>

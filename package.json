@@ -1,0 +1,26 @@
+{
+  "name": "admin-panel-node",
+  "version": "1.0.0",
+  "description": "Clean Node.js admin panel with Express, EJS and MongoDB",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "cookie-parser": "^1.4.6",
+    "ejs": "^3.1.10",
+    "express": "^4.19.2",
+    "express-session": "^1.19.0",
+    "mongoose": "^8.9.5",
+    "multer": "^2.2.0",
+    "otp-generator": "^4.0.1",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
+}

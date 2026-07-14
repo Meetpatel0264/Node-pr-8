@@ -1,0 +1,215 @@
+<% var safeProfileImageUrl=typeof profileImageUrl !=="undefined" ? profileImageUrl : "/images/dashboard/Profile.png" ;
+  %>
+  <!doctype html>
+
+  <html lang="en" class="layout-menu-fixed layout-compact" data-assets-path="../assets/"
+    data-template="vertical-menu-template-free">
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+
+    <title>Admin Panel | Dashboard</title>
+
+    <meta name="description" content="" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/images/favcon-icon/favicon.ico" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&ampdisplay=swap"
+      rel="stylesheet" />
+
+    <link rel="stylesheet" href="/font/iconify-icons.css" />
+
+
+    <!-- Core CSS -->
+    <!-- build:css assets/vendor/css/theme.css -->
+
+    <link rel="stylesheet" href="/css/formsCss/node-waves.css" />
+
+    <link rel="stylesheet" href="/css/authCss/core.css" />
+    <link rel="stylesheet" href="/css/authCss/demo.css" />
+    <!-- Vendors CSS -->
+
+    <link rel="stylesheet" href="/css/formsCss/perfect-scrollbar.css" />
+
+    <!-- endbuild -->
+    <link rel="stylesheet" href="/css/formsCss/apex-charts.css" />
+
+    <!-- Page CSS -->
+    <!-- Page -->
+    <link rel="stylesheet" href="/css/authCss/page-auth.css" />
+
+    <!-- Page CSS -->
+
+    <!-- Helpers -->
+    <script src="/js/helpers.js"></script>
+    <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
+
+    <!--? Config: Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file. -->
+
+    <script src="/js/config.js"></script>
+
+    <style>
+      /* Custom full sidebar open/close fix: dashboard UI stays same, only menu toggle behavior changes */
+      html.layout-menu-hidden #layout-menu {
+        transform: translateX(-110%) !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+      }
+
+      html.layout-menu-hidden .layout-page {
+        padding-left: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+
+      html.layout-menu-hidden .layout-menu-fixed .layout-page,
+      html.layout-menu-hidden.layout-menu-fixed .layout-page {
+        padding-left: 0 !important;
+      }
+
+      .layout-navbar .layout-menu-toggle {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        min-width: 38px !important;
+        min-height: 38px !important;
+        cursor: pointer !important;
+        position: relative !important;
+        z-index: 1090 !important;
+      }
+
+      .layout-navbar .layout-menu-toggle a {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 38px !important;
+        height: 38px !important;
+        color: inherit !important;
+      }
+
+      @media (min-width: 1200px) {
+        .layout-navbar .layout-menu-toggle {
+          display: none !important;
+        }
+      }
+
+      html:not(.layout-menu-hidden) .layout-overlay {
+        display: none !important;
+        pointer-events: none !important;
+      }
+
+      @media (min-width: 1200px) {
+        html:not(.layout-menu-hidden) .layout-overlay {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        <!-- Menu -->
+
+        <%- include('../partials/sidebar') %>
+          <!-- / Menu -->
+
+          <!-- Layout container -->
+          <div class="layout-page">
+            <!-- Navbar -->
+
+            <nav
+              class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme"
+              id="layout-navbar">
+              <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
+                <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0);">
+                  <i class="icon-base ri ri-menu-line icon-md"></i>
+                </a>
+              </div>
+
+              <div class="navbar-nav-right d-flex align-items-center justify-content-end" id="navbar-collapse">
+                <!-- Search -->
+                <div class="navbar-nav align-items-center">
+                  <div class="nav-item d-flex align-items-center">
+                    <i class="icon-base ri ri-search-line icon-lg lh-0"></i>
+                    <input type="text" class="form-control border-0 shadow-none" placeholder="Search..."
+                      aria-label="Search..." />
+                  </div>
+                </div>
+                <!-- /Search -->
+
+                <ul class="navbar-nav flex-row align-items-center ms-md-auto">
+                  <!-- Place this tag where you want the button to render. -->
+                  <li class="nav-item lh-1 me-4">
+                    <a class="github-button" href="https://github.com/Meetpatel0264" data-icon="octicon-star"
+                      data-size="large" data-show-count="true" aria-label="Maan Patel GitHub">GitHub</a>
+                  </li>
+
+                  <!-- User -->
+                  <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                    <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);"
+                      data-bs-toggle="dropdown">
+                      <div class="avatar avatar-online">
+                        <img src="<%= safeProfileImageUrl %>" alt="alt" class="rounded-circle" />
+                      </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                      <li>
+                        <a class="dropdown-item" href="#">
+                          <div class="d-flex">
+                            <div class="flex-shrink-0 me-3">
+                              <div class="avatar avatar-online">
+                                <img src="<%= safeProfileImageUrl %>" alt="alt" class="w-px-40 h-auto rounded-circle" />
+                              </div>
+                            </div>
+                            <div class="flex-grow-1">
+                              <h6 class="mb-0">
+                                <%= loginUser ? loginUser.username : "Admin" %>
+                              </h6>
+                              <small class="text-body-secondary text-truncate d-block">
+                                <%= loginUser ? loginUser.email : "admin@gmail.com" %>
+                              </small>
+                            </div>
+                          </div>
+                        </a>
+                      </li>
+                      <li>
+                        <div class="dropdown-divider my-1"></div>
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="/profile">
+                          <i class="icon-base ri ri-user-line icon-md me-3"></i>
+                          <span>My Profile</span>
+                        </a>
+                      </li>
+                      <li>
+                        <a class="dropdown-item" href="/change-password">
+                          <i class="icon-base ri ri-lock-password-line icon-md me-3"></i>
+                          <span>Change Password</span>
+                        </a>
+                      </li>
+                      <li>
+                        <div class="dropdown-divider my-1"></div>
+                      </li>
+                      <li>
+                        <div class="d-grid px-4 pt-2 pb-1">
+                          <a class="btn btn-danger d-flex" href="/logout">
+                            <small class="align-middle">Logout</small>
+                            <i class="ri ri-logout-box-r-line ms-2 ri-xs"></i>
+                          </a>
+                        </div>
+                      </li>
+                    </ul>
+                  </li>
+                  <!--/ User -->
+                </ul>
+              </div>
+            </nav>

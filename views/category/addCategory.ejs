@@ -1,0 +1,52 @@
+<%- include('../partials/header') %>
+
+<div class="content-wrapper">
+    <div class="container-xxl flex-grow-1 container-p-y">
+        <div class="row justify-content-center">
+            <div class="col-lg-7 col-md-9">
+                <div class="card border-0 shadow-sm category-card">
+                    <div class="card-header bg-transparent d-flex align-items-center justify-content-between flex-wrap gap-3">
+                        <div>
+                            <h5 class="mb-1">Add Category</h5>
+                            <p class="text-body-secondary mb-0">Add a category item name for your panel.</p>
+                        </div>
+                        <a href="/view-category" class="btn btn-sm btn-outline-primary">
+                            <i class="icon-base ri ri-table-line me-1"></i> View Category
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <% if (error) { %>
+                            <div class="alert alert-danger"><%= error %></div>
+                        <% } %>
+                        <% if (success) { %>
+                            <div class="alert alert-success"><%= success %></div>
+                        <% } %>
+
+                        <form action="/add-category" method="POST" class="row g-4">
+                            <div class="col-12">
+                                <label for="categoryName" class="form-label">Category Item Name</label>
+                                <input type="text" class="form-control form-control-lg" id="categoryName" name="categoryName" placeholder="Enter category item name" required>
+                            </div>
+                            <div class="col-12 d-flex gap-2 flex-wrap">
+                                <button type="submit" class="btn btn-primary px-4">
+                                    <i class="icon-base ri ri-add-circle-line me-1"></i> Add Category
+                                </button>
+                                <a href="/view-category" class="btn btn-outline-secondary px-4">Cancel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .category-card {
+            border-radius: 18px;
+        }
+        .category-card .form-control {
+            border-radius: 12px;
+        }
+    </style>
+
+    <%- include('../partials/footer') %>
