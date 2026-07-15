@@ -50,3 +50,5 @@ Make sure MongoDB is running before starting the project.
 - `POST /forgot-password/reset` - update password after OTP verification
 
 > For production, replace console OTP output with an email service and store a hash of the OTP instead of plain text.
+
+Auther Name : Meet Patel
