@@ -13,7 +13,7 @@ if (!fs.existsSync(productUploadDir)) {
 }
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (req, file, cb) => {   
         cb(null, productUploadDir);
     },
     filename: (req, file, cb) => {

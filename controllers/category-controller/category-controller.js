@@ -31,7 +31,10 @@ const addCategory = async (req, res) => {
         }
 
         await Category.create({ categoryName });
-        res.redirect("/view-category");
+        // res.redirect("/view-category");
+        return res.redirect(
+            "/view-category?success=category added successfully."
+        );
     } catch (error) {
         res.render("category/addCategory", {
             error: "Category not added. Please try again.",

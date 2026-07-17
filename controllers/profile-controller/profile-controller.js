@@ -2,6 +2,7 @@ const User = require("../../models/User");
 const bcrypt = require("bcrypt");
 const fs = require("fs");
 const path = require("path");
+
 const {
     clean,
     validateStrongPassword,
@@ -9,24 +10,25 @@ const {
     validateLanguage
 } = require("../../utils/validation");
 
-const MAX_CHANGE_PASSWORD_ATTEMPTS = 3;
-const CHANGE_PASSWORD_LOCK_MS = 30 * 60 * 1000;
+const maxPasswordattept = 3;
+const lockTime = 30 * 60 * 1000;
 
 const removeOldProfileImage = (imageName) => {
     if (!imageName || imageName.includes("default")) {
         return;
     }
 
-    const fileName = path.basename(imageName);
-    const imagePath = `uploads/profiles/${fileName}`;
+    const oldImagePath = `uploads/${imageName}`;
 
-    if (fs.existsSync(imagePath)) {
-        fs.unlinkSync(imagePath);
+    if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
     }
 };
 
 const getChangePasswordBlockState = async (userId) => {
-    const user = await User.findById(userId).select("changePasswordAttempts changePasswordLockUntil");
+    const user = await User.findById(userId).select(
+        "changePasswordAttempts changePasswordLockUntil"
+    );
 
     if (!user) {
         return {
@@ -34,60 +36,90 @@ const getChangePasswordBlockState = async (userId) => {
             isBlocked: false,
             remainingSeconds: 0,
             attempts: 0,
-            attemptsLeft: MAX_CHANGE_PASSWORD_ATTEMPTS
+            attemptsLeft: maxPasswordattept
         };
     }
 
-    const lockTime = user.changePasswordLockUntil ? user.changePasswordLockUntil.getTime() : 0;
-    const remainingMs = lockTime - Date.now();
+    let lockTime = 0;
 
-    if (remainingMs > 0) {
+    if (user.changePasswordLockUntil) {
+        lockTime = user.changePasswordLockUntil.getTime();
+    }
+
+    const currentTime = Date.now();
+    const remainingTime = lockTime - currentTime;
+
+    if (remainingTime > 0) {
+        const remainingSeconds = parseInt(remainingTime / 1000) + 1;
+
         return {
             user,
             isBlocked: true,
-            remainingSeconds: parseInt(remainingMs / 1000) + 1,
+            remainingSeconds,
             attempts: user.changePasswordAttempts || 0,
             attemptsLeft: 0
         };
     }
 
-    if (user.changePasswordLockUntil && remainingMs <= 0) {
+    if (user.changePasswordLockUntil && remainingTime <= 0) {
         user.changePasswordAttempts = 0;
         user.changePasswordLockUntil = null;
+
         await user.save();
     }
 
     const attempts = user.changePasswordAttempts || 0;
+    let attemptsLeft = maxPasswordattept - attempts;
+
+    if (attemptsLeft < 0) {
+        attemptsLeft = 0;
+    }
 
     return {
         user,
         isBlocked: false,
         remainingSeconds: 0,
         attempts,
-        attemptsLeft: Math.max(MAX_CHANGE_PASSWORD_ATTEMPTS - attempts, 0)
+        attemptsLeft
     };
 };
 
 const renderChangePassword = async (req, res, data = {}) => {
-    const blockState = await getChangePasswordBlockState(req.user._id);
+    const passwordStatus =
+        await getChangePasswordBlockState(req.user._id);
 
-    if (!blockState.user) {
+    if (!passwordStatus.user) {
         return res.redirect("/logout");
     }
 
+    let attemptsLeft = passwordStatus.attemptsLeft;
+
+    if (data.attemptsLeft !== undefined) {
+        attemptsLeft = data.attemptsLeft;
+    }
+
+    const successMessage = data.success || null;
+    const errorMessage = data.error || null;
+
     return res.render("profile/changePassword", {
-        success: data.success || null,
-        error: data.error || null,
-        isChangePasswordBlocked: blockState.isBlocked,
-        remainingSeconds: blockState.remainingSeconds,
-        attemptsLeft: typeof data.attemptsLeft === "number" ? data.attemptsLeft : blockState.attemptsLeft,
-        maxChangePasswordAttempts: MAX_CHANGE_PASSWORD_ATTEMPTS
+        success: successMessage,
+        error: errorMessage,
+        isChangePasswordBlocked: passwordStatus.isBlocked,
+        remainingSeconds: passwordStatus.remainingSeconds,
+        attemptsLeft: attemptsLeft,
+        maxChangePasswordAttempts: maxPasswordattept
     });
 };
 
 const profilePage = (req, res) => {
-    res.render("profile/profile", {
-        success: req.query.success ? "Profile updated successfully." : null,
+    let successMessage = null;
+
+    if (req.query.success) {
+        successMessage = "Profile updated successfully.";
+    }
+
+    return res.render("profile/profile", {
+        success: successMessage,
         error: null
     });
 };
@@ -118,14 +150,18 @@ const updateProfile = async (req, res) => {
             });
         }
 
-        if (!validateRole(profileData.role)) {
+        const roleIsValid = validateRole(profileData.role);
+
+        if (!roleIsValid) {
             return res.render("profile/profile", {
                 success: null,
                 error: "Please select a valid role."
             });
         }
 
-        if (!validateLanguage(profileData.languages)) {
+        const languageIsValid = validateLanguage(profileData.languages);
+
+        if (!languageIsValid) {
             return res.render("profile/profile", {
                 success: null,
                 error: "Please select a valid language."
@@ -139,16 +175,22 @@ const updateProfile = async (req, res) => {
         }
 
         if (req.file) {
-            profileData.profileImage = req.file.path.replace(/\\/g, "/").replace("uploads/", "");
+            profileData.profileImage = `profiles/${req.file.filename}`;
+
             removeOldProfileImage(oldUser.profileImage);
         }
 
-        const updatedUser = await User.findByIdAndUpdate(userId, profileData,
-            { returnDocument: "after", runValidators: true }
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            profileData,
+            {
+                returnDocument: "after",
+                runValidators: true
+            }
         );
 
-        req.login(updatedUser, (loginErr) => {
-            if (loginErr) {
+        req.login(updatedUser, (loginError) => {
+            if (loginError) {
                 return res.render("profile/profile", {
                     success: null,
                     error: "Profile updated, but session refresh failed. Please login again."
@@ -158,7 +200,8 @@ const updateProfile = async (req, res) => {
             return res.redirect("/profile?success=1");
         });
     } catch (error) {
-        console.error(error);
+        console.error("Profile update error:", error);
+
         return res.render("profile/profile", {
             success: null,
             error: "Profile update failed. Please try again."
@@ -186,20 +229,34 @@ const changePassword = async (req, res, next) => {
                 isChangePasswordBlocked: true,
                 remainingSeconds: blockState.remainingSeconds,
                 attemptsLeft: 0,
-                maxChangePasswordAttempts: MAX_CHANGE_PASSWORD_ATTEMPTS
+                maxChangePasswordAttempts: maxPasswordattept
             });
         }
+
         const oldPassword = clean(req.body.oldPassword);
         const newPassword = clean(req.body.newPassword);
         const confirmPassword = clean(req.body.confirmPassword);
 
-        if (!oldPassword || !newPassword || !confirmPassword) {
+        if (!oldPassword) {
+            return renderChangePassword(req, res, {
+                error: "Please fill old password, new password and confirm password."
+            });
+        }
+
+        if (!newPassword) {
+            return renderChangePassword(req, res, {
+                error: "Please fill old password, new password and confirm password."
+            });
+        }
+
+        if (!confirmPassword) {
             return renderChangePassword(req, res, {
                 error: "Please fill old password, new password and confirm password."
             });
         }
 
         const passwordError = validateStrongPassword(newPassword);
+
         if (passwordError) {
             return renderChangePassword(req, res, {
                 error: passwordError
@@ -224,28 +281,48 @@ const changePassword = async (req, res, next) => {
             return res.redirect("/logout");
         }
 
-        const isOldPasswordRight = await bcrypt.compare(oldPassword, user.password);
+        const oldPasswordMatches = await bcrypt.compare(
+            oldPassword,
+            user.password
+        );
 
-        if (!isOldPasswordRight) {
-            user.changePasswordAttempts = (user.changePasswordAttempts || 0) + 1;
+        if (!oldPasswordMatches) {
+            let attempts = user.changePasswordAttempts || 0;
+            attempts = attempts + 1;
 
-            if (user.changePasswordAttempts >= MAX_CHANGE_PASSWORD_ATTEMPTS) {
-                user.changePasswordAttempts = MAX_CHANGE_PASSWORD_ATTEMPTS;
-                user.changePasswordLockUntil = new Date(Date.now() + CHANGE_PASSWORD_LOCK_MS);
+            user.changePasswordAttempts = attempts;
+
+            if (attempts >= maxPasswordattept) {
+                user.changePasswordAttempts = maxPasswordattept;
+
+                const lockUntil = Date.now() + lockTime;
+                user.changePasswordLockUntil = new Date(lockUntil);
+
                 await user.save();
 
-                return res.status(429).render("profile/changePassword", {
-                    success: null,
-                    error: "Too many incorrect attempts. Change password is disabled for 30 minutes.",
-                    isChangePasswordBlocked: true,
-                    remainingSeconds: parseInt(CHANGE_PASSWORD_LOCK_MS / 1000),
-                    attemptsLeft: 0,
-                    maxChangePasswordAttempts: MAX_CHANGE_PASSWORD_ATTEMPTS
-                });
+                const remainingSeconds = parseInt(
+                    lockTime / 1000
+                );
+
+                return res.status(429).render(
+                    "profile/changePassword",
+                    {
+                        success: null,
+                        error: "Too many incorrect attempts. Change password is disabled for 30 minutes.",
+                        isChangePasswordBlocked: true,
+                        remainingSeconds,
+                        attemptsLeft: 0,
+                        maxChangePasswordAttempts:
+                            maxPasswordattept
+                    }
+                );
             }
 
             await user.save();
-            const attemptsLeft = MAX_CHANGE_PASSWORD_ATTEMPTS - user.changePasswordAttempts;
+
+            const attemptsLeft =
+                maxPasswordattept -
+                user.changePasswordAttempts;
 
             return renderChangePassword(req, res, {
                 error: `Old password is incorrect. ${attemptsLeft} attempt(s) left.`,
@@ -261,23 +338,25 @@ const changePassword = async (req, res, next) => {
 
         await user.save();
 
-        req.logout((logoutErr) => {
-            if (logoutErr) {
-                return next(logoutErr);
+        req.logout((logoutError) => {
+            if (logoutError) {
+                return next(logoutError);
             }
 
-            req.session.destroy((sessionErr) => {
-                if (sessionErr) {
-                    return next(sessionErr);
+            req.session.destroy((sessionError) => {
+                if (sessionError) {
+                    return next(sessionError);
                 }
 
                 res.clearCookie("connect.sid");
                 res.clearCookie("sessionId");
+
                 return res.redirect("/login?passwordChanged=1");
             });
         });
     } catch (error) {
-        console.error(error);
+        console.error("Change password error:", error);
+
         return renderChangePassword(req, res, {
             error: "Password update failed. Please try again."
         });

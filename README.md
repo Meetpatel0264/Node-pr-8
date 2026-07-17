@@ -39,7 +39,7 @@ Make sure MongoDB is running before starting the project.
 - OTP length: 6 numeric digits
 - OTP expiry: 10 minutes using `Date.now()`
 - Resend cooldown: 30 seconds
-- OTP is printed in the Node.js server console for development.
+- OTP is sent to the registered Gmail address using Nodemailer and Gmail SMTP.
 - OTP is stored in MongoDB as a String.
 
 ### Routes
@@ -49,6 +49,4 @@ Make sure MongoDB is running before starting the project.
 - `POST /forgot-password/resend-otp` - generate a new OTP after 30 seconds
 - `POST /forgot-password/reset` - update password after OTP verification
 
-> For production, replace console OTP output with an email service and store a hash of the OTP instead of plain text.
-
-Auther Name : Meet Patel
+> The current project uses Gmail SMTP for OTP delivery. For production, keep credentials outside source control and store a hash of the OTP instead of plain text.

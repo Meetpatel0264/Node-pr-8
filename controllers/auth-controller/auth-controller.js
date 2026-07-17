@@ -9,6 +9,7 @@ const {
     getResendAvailableAt,
     isExpired
 } = require("../../utils/otp");
+const { sendOtpEmail } = require("../../utils/trasport");
 
 const renderLogin = (req, res) => {
     res.render("auth/login", {
@@ -125,11 +126,10 @@ const forgotPassword = async (req, res) => {
         user.forgotPasswordResendAt = getResendAvailableAt();
         await user.save();
 
-        console.log(`FORGOT PASSWORD OTP: ${otp}`);
-        // console.log(`[FORGOT PASSWORD OTP] Email: ${email} | OTP: ${otp} | Token: ${token}`);
+        await sendOtpEmail(user, otp);
 
         return renderForgotView(res, {
-            success: "OTP generated successfully. Check the server console.",
+            success: "OTP sent successfully to your registered email address.",
             email,
             token,
             step: "otp",
@@ -198,7 +198,7 @@ const verifyForgotPasswordOtp = async (req, res) => {
 
         if (String(user.forgotPasswordOtp) !== String(otp)) {
             return renderForgotView(res, {
-                error: "Invalid OTP. Please enter the OTP shown in the server console.",
+                error: "Invalid OTP. Please enter the OTP sent to your email address.",
                 email,
                 token,
                 step: "otp",
@@ -277,13 +277,10 @@ const resendForgotPasswordOtp = async (req, res) => {
 
         await user.save();
 
-        console.log(
-            `RESENT FORGOT PASSWORD OTP: ${otp}`
-            // `[RESENT FORGOT PASSWORD OTP] Email: ${email} | OTP: ${otp} | Token: ${token}`
-        );
+        await sendOtpEmail(user, otp);
 
         return renderForgotView(res, {
-            success: "New OTP generated. Check the server console.",
+            success: "A new OTP was sent to your registered email address.",
             email,
             token,
             step: "otp",
